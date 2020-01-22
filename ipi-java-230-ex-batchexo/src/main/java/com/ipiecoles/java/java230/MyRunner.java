@@ -6,6 +6,7 @@ import com.ipiecoles.java.java230.model.Employe;
 import com.ipiecoles.java.java230.repository.EmployeRepository;
 import com.ipiecoles.java.java230.repository.ManagerRepository;
 import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,48 +94,64 @@ public class MyRunner implements CommandLineRunner {
      */
     private void processLine(String ligne) throws BatchException {
         //TODO
-        int n=0;
+        //int n=0;
+
 
 //EXPRESSION REGULIERE / VERIFICATION TYPE D'EMPLOYE
+
         ligne.matches(REGEX_TYPE);
-        if(!ligne.matches(REGEX_TYPE)){
-            throw new BatchException(("type d'employe inconnu"+ ligne.charAt(0)));
+        if (!ligne.matches(REGEX_TYPE)) {
+            throw new BatchException(("type d'employe inconnu" + ligne.charAt(0)));
         }
 
+        String array[] = ligne.split(",");
+        if (array.length > 0) {
 //EXPRESSION REGULIERE / VERIFICATION MATRICULE
 
-        String array[] = ligne.split(",");
         //if(arr[0].length()!=6){
         if (!array[0].matches(REGEX_MATRICULE)){
             throw new BatchException("la chaîne "+ array[0] +" ne respecte pas l'expression régulière ^[MTC][0-9]{5}$");
         }
 
+
+            //TEST FORMAT DATE
+
+            try {
+                String date = array[3];
+                //System.out.println(date);
+                DateTimeFormat.forPattern("dd/MM/yyyy").parseLocalDate(date);
+            }
+            catch (ArrayIndexOutOfBoundsException e) {
+                throw new BatchException("pas de date");
+            }
+            catch (Exception e) {
+                throw new BatchException(ligne + " ne respecte pas le format de date dd/MM/yyyy ");
+            }
 //TESTE DU SALAIRE
 
-        if (array.length>=4) {
-            //System.out.println(arr.length);
-            char salaire = array[4].charAt(0);
-            if (!Character.isDigit(salaire)) {
+           /* if (array.length >= 4) {
+                //System.out.println(arr.length);
+                char salaire = array[4].charAt(0);
+                if (!Character.isDigit(salaire)) {
+                    throw new BatchException("sdf n'est pas un nombre valide pour un salaire");
+                }
+            }*/
+
+           try {
+               char salaire = array[4].charAt(0);
+               Character.isDigit(salaire);
+           }
+           catch (ArrayIndexOutOfBoundsException e){
+               throw new ArrayIndexOutOfBoundsException("pas de salaire");
+
+           }
+           catch(Exception e){
                throw new BatchException("sdf n'est pas un nombre valide pour un salaire");
-            }
+           }
+
+
+
         }
-
-
-//TEST FORMAT DATE
-        //SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        //sdf.setLenient(false);
-
-        /*try
-        {
-            LocalDate localDate = LocalDate.parse( arr[3] );
-            //System.out.println( "localDate.toString():  " + localDate ) ;
-        } catch ( DateTimeParseException e )
-        {
-            throw new BatchException("04/99/2013 ne respecte pas le format de date dd/MM/yyyy");
-            // … handle exception
-            //System.out.println( e.getLocalizedMessage( ) );
-        }*/
-
     }
 
     /**
@@ -225,13 +242,15 @@ public class MyRunner implements CommandLineRunner {
         //TESTE GRADE
 
         if (ligneTechnicien.split(",").length >= 7) {
-            int grade = arr[5].charAt(0);
+            char grade = arr[5].charAt(0);
+            //System.out.println(grade);
 
-            if (!Character.isDigit(grade)) {
+            if (Character.isDigit(grade)) {
                 throw new BatchException(("Le grade du technicien est incorrect"));
             }
-            if (grade <= 1 || grade >= 5) {
-                throw new BatchException(("Le grade doit être compris entre 1 et 5 : "));
+
+            if (grade < 0 || grade > 5) {
+                throw new BatchException(("Le grade doit être compris entre 1 et 5 : " +grade));
             }
 
 
