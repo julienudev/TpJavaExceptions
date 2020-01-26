@@ -76,6 +76,7 @@ public class MyRunner implements CommandLineRunner {
             } catch (BatchException batchExc) {
                 System.out.println("ligne" + i + " : " + batchExc.getMessage() + " => " + ligne);
             }
+
         }
         return employes;
 
@@ -159,20 +160,26 @@ public class MyRunner implements CommandLineRunner {
 
         String arrayCommercial[] = ligneCommercial.split(",");
         if (arrayCommercial.length != NB_CHAMPS_COMMERCIAL) {
-            throw new BatchException("La ligne commercial ne contient pas 5 éléments mais " + arrayCommercial.length);
+            throw new BatchException("La ligne commercial ne contient pas 7 éléments mais " + arrayCommercial.length);
         }
 
         // TESTE DU CHIFFRE DAFFAIRE
 
-        char chiffreDaffaire = arrayCommercial[5].charAt(0);
-        if (!Character.isDigit(chiffreDaffaire)) {
+        String chiffreDaffaire = arrayCommercial[5];
+        try{
+            Double d = Double.parseDouble(chiffreDaffaire);
+        }
+        catch (NumberFormatException nfe){
             throw new BatchException("Le chiffre d'affaire du commercial est incorrect : " + chiffreDaffaire);
         }
 
         // TESTE DE LA PERFORMANCE
 
-        char performance = arrayCommercial[6].charAt(0);
-        if (!Character.isDigit(performance)) {
+        String performance = arrayCommercial[6];
+        try {
+            double d = Double.parseDouble(performance);
+        }
+        catch (NumberFormatException nfe) {
             throw new BatchException("La performance du commercial est incorrect : " + performance);
         }
     }
@@ -207,7 +214,7 @@ public class MyRunner implements CommandLineRunner {
 
         String arrayTechnicien[] = ligneTechnicien.split(",");
         if (arrayTechnicien.length != NB_CHAMPS_TECHNICIEN) {
-            throw new BatchException("La ligne technicien ne contient pas 5 éléments mais " + arrayTechnicien.length);
+            throw new BatchException("La ligne technicien ne contient pas 7 éléments mais " + arrayTechnicien.length);
         }
 
         // VERIFICATION GRADE
