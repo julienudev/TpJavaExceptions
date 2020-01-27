@@ -30,13 +30,13 @@ import java.util.stream.Stream;
 public class MyRunner implements CommandLineRunner {
 
     private static final String REGEX_MATRICULE = "^[MTC][0-9]{5}$";
+    private static final String REGEX_IsMTC = "^[MTC]{1}.*";
     private static final String REGEX_NOM = ".*";
     private static final String REGEX_PRENOM = ".*";
     private static final int NB_CHAMPS_MANAGER = 5;
     private static final int NB_CHAMPS_TECHNICIEN = 7;
     private static final String REGEX_MATRICULE_MANAGER = "^M[0-9]{5}$";
     private static final int NB_CHAMPS_COMMERCIAL = 7;
-    private static final String REGEX_IsMTC = "^[MTC]{1}.*";
 
     @Autowired
     private EmployeRepository employeRepository;
@@ -79,7 +79,6 @@ public class MyRunner implements CommandLineRunner {
 
         }
         return employes;
-
     }
 
     /**
@@ -90,8 +89,7 @@ public class MyRunner implements CommandLineRunner {
      */
     private void processLine(String ligne) throws Exception {
 
-
-//VERIFICATION TYPE D'EMPLOYE
+        //VERIFICATION TYPE D'EMPLOYE
 
         ligne.matches(REGEX_IsMTC);
         if (!ligne.matches(REGEX_IsMTC)) {
@@ -99,13 +97,14 @@ public class MyRunner implements CommandLineRunner {
         }
         String array[] = ligne.split(",");
 
-//EXPRESSION REGULIERE / VERIFICATION FORMAT DU MATRICULE
+        //EXPRESSION REGULIERE / VERIFICATION FORMAT DU MATRICULE
 
         if (!array[0].matches(REGEX_MATRICULE)) {
             throw new BatchException("la chaîne " + array[0] + " ne respecte pas l'expression régulière ^[MTC][0-9]{5}$");
         }
 
-// APPEL DE LA BONNE METHODE EN FONCTION DU TYPE D'EMPLOYE
+        // APPEL DE LA BONNE METHODE EN FONCTION DU TYPE D'EMPLOYE
+
         switch (ligne.charAt(0)) {
             case 'M':
                 processManager(ligne);
@@ -118,20 +117,12 @@ public class MyRunner implements CommandLineRunner {
                 break;
         }
 
-
-//TESTE DU SALAIRE
+        // TESTE DU SALAIRE
 
         try {
-            if (!(array[4] == null || array[4].length() == 0)) {
-                Float.parseFloat(array[4]);
-            }
+            Double.parseDouble(array[4]);
 
-
-            //System.out.println(Integer.parseInt(array[4]));
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw new ArrayIndexOutOfBoundsException(array[4] + " =>pas de salaire");
-
-        } catch (Exception e) {
+        } catch (NumberFormatException nfe) {
             throw new BatchException(array[4] + " => n'est pas un nombre valide pour un salaire");
         }
 
@@ -166,10 +157,9 @@ public class MyRunner implements CommandLineRunner {
         // TESTE DU CHIFFRE DAFFAIRE
 
         String chiffreDaffaire = arrayCommercial[5];
-        try{
+        try {
             Double d = Double.parseDouble(chiffreDaffaire);
-        }
-        catch (NumberFormatException nfe){
+        } catch (NumberFormatException nfe) {
             throw new BatchException("Le chiffre d'affaire du commercial est incorrect : " + chiffreDaffaire);
         }
 
@@ -178,8 +168,7 @@ public class MyRunner implements CommandLineRunner {
         String performance = arrayCommercial[6];
         try {
             double d = Double.parseDouble(performance);
-        }
-        catch (NumberFormatException nfe) {
+        } catch (NumberFormatException nfe) {
             throw new BatchException("La performance du commercial est incorrect : " + performance);
         }
     }
